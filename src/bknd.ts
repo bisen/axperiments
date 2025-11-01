@@ -1,4 +1,4 @@
-import type { AstroGlobal } from "astro";
+import type { AstroGlobal, APIContext } from "astro";
 import { getApp as getBkndApp } from "bknd/adapter/astro";
 import config from "../bknd.config";
 
@@ -9,7 +9,7 @@ export async function getApp() {
 }
 
 export async function getApi(
-  astro: AstroGlobal,
+  astro: AstroGlobal | APIContext,
   opts?: { mode: "static" } | { mode?: "dynamic"; verify?: boolean }
 ) {
   const app = await getApp();
@@ -20,5 +20,5 @@ export async function getApi(
     return api;
   }
 
-  return app.getApi();
+  return app.getApi({ headers: astro.request.headers });
 }

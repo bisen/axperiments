@@ -28,7 +28,17 @@ export async function onRequest(context: APIContext, next: MiddlewareNext) {
     context
   );
 
-  if (url.pathname.startsWith("/api/") || url.pathname.startsWith("/admin")) {
+  // Handle bknd's native API routes and /admin
+  // bknd handles: /api/data/*, /api/auth/*, /api/media/*, /api/system/*, /admin
+  // Custom Astro routes like /api/recipes/* will pass through to Astro's file-based routing
+  const isBkndRoute =
+    url.pathname.startsWith("/api/data/") ||
+    url.pathname.startsWith("/api/auth/") ||
+    url.pathname.startsWith("/api/media/") ||
+    url.pathname.startsWith("/api/system/") ||
+    url.pathname.startsWith("/admin");
+
+  if (isBkndRoute) {
     if (bkndRedirects[url.pathname]) {
       return context.redirect(bkndRedirects[url.pathname]);
     }

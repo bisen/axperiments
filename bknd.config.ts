@@ -1,13 +1,14 @@
 import type { AstroBkndConfig } from "bknd/adapter/astro";
 import type { APIContext } from "astro";
 import { registerLocalMediaAdapter } from "bknd/adapter/node";
-import { em, entity, number, text, libsql } from "bknd";
+import { em, entity, number, text, libsql, boolean, json, systemEntity } from "bknd";
 import { secureRandomString } from "bknd/utils";
 import { syncTypes } from "bknd/plugins";
 import { createClient } from "@libsql/client";
 
 const schema = em(
   {
+    users: systemEntity("users", {}),
     posts: entity("posts", {
       // "id" is automatically added
       title: text().required(),
@@ -17,29 +18,66 @@ const schema = em(
     }),
     comments: entity("comments", {
       content: text()
+    }),
+
+    // Recipe management entities
+    recipes: entity("recipes", {
+      name: text().required(),
+      description: text(),
+      yields: json(), // Array of { amount: number, unit: string }
+      notes: json(), // Array of strings
+      source: json(), // { author?, url?, book?: { title, authors, isbn } }
+      public: boolean()
+    }),
+    ingredients: entity("ingredients", {
+      name: text().required()
+    }),
+    recipe_ingredients: entity("recipe_ingredients", {
+      amounts: json().required(), // Array of { amount: number|string, unit: string }
+      processing: json(), // Array of strings
+      notes: json(), // Array of strings
+      order: number().required()
+    }),
+    steps: entity("steps", {
+      order: number().required(),
+      instruction: text().required(),
+      notes: json() // Array of strings
     })
 
     // relations and indices are defined separately.
     // the first argument are the helper functions, the second the entities.
   },
-  ({ relation, index }, { posts, comments }) => {
+  ({ relation, index }, { posts, comments, recipes, ingredients, recipe_ingredients, steps, users }) => {
+    relation(recipes).manyToOne(users);
     relation(comments).manyToOne(posts);
     // relation as well as index can be chained!
     index(posts).on(["title"]).on(["slug"], true);
+
+    // Recipe relations
+    relation(recipe_ingredients).manyToOne(recipes);
+    relation(recipe_ingredients).manyToOne(ingredients);
+    relation(steps).manyToOne(recipes);
+
+    // Recipe indices
+    index(ingredients).on(["name"], true); // unique index
   }
 );
 
 export default {
   app: (_ctx: APIContext) => ({
-    connection: !!process.env.DB_LIBSQL_URL && !!process.env.DB_LIBSQL_TOKEN ?
-      libsql(createClient({
-        url: process.env.DB_LIBSQL_URL,
-        authToken: process.env.DB_LIBSQL_TOKEN
-      })) : {
-        url: "file:.astro/content.db"
-      }
+    connection:
+      !!process.env.DB_LIBSQL_URL && !!process.env.DB_LIBSQL_TOKEN
+        ? libsql(
+            createClient({
+              url: process.env.DB_LIBSQL_URL,
+              authToken: process.env.DB_LIBSQL_TOKEN
+            })
+          )
+        : {
+            url: "file:.astro/content.db"
+          }
   }),
-  // config is only applied if the database is empty
+  // an initial config is only applied if the database is empty
   config: {
     data: schema.toJSON(),
     // we're enabling auth ...
@@ -77,9 +115,12 @@ export default {
     // ... and media
     media: {
       enabled: true,
-      adapter: process.env.NODE_ENV === "development" ? registerLocalMediaAdapter()({
-        path: "./public/temp/uploads"
-      }) : undefined,
+      adapter:
+        process.env.NODE_ENV === "development"
+          ? registerLocalMediaAdapter()({
+              path: "./public/temp/uploads"
+            })
+          : undefined
     }
   },
   options: {
