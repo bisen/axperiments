@@ -39,8 +39,8 @@ export default {
         url: "file:.astro/content.db"
       }
   }),
-  // an initial config is only applied if the database is empty
-  initialConfig: {
+  // config is only applied if the database is empty
+  config: {
     data: schema.toJSON(),
     // we're enabling auth ...
     auth: {

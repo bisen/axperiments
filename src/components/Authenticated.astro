@@ -1,7 +1,7 @@
 ---
 import { getApi } from "@/bknd.ts";
 
-const api = await getApi(Astro.request.headers, { verify: true, mode: "dynamic" });
+const api = await getApi(Astro, { verify: true, mode: "dynamic" });
 const user = api.getUser();
 ---
 

@@ -2,7 +2,7 @@
 import { getApi } from "@/bknd.ts";
 import Layout from "@/layouts/Layout.astro";
 
-const api = await getApi(Astro.request.headers, { verify: true, mode: "dynamic" });
+const api = await getApi(Astro, { verify: true, mode: "dynamic" });
 
 const { data } = await api.data.readMany("posts");
 const user = api.getUser();
