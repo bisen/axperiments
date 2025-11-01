@@ -1,16 +1,64 @@
 ---
 import BirdIcon from "@/assets/lucide/bird.svg";
 import Authenticated from "./Authenticated.astro";
+import { getApi } from "@/bknd.ts";
+
+const api = await getApi(Astro, { verify: true, mode: "dynamic" });
+const user = api.getUser();
+const isAdmin = user?.role === "admin";
 ---
 
 <header class="bg-background sticky inset-x-0 top-0 isolate z-10 flex shrink-0 items-center gap-2 border-b">
-  <div class="mx-auto flex h-14 w-full max-w-md items-center gap-2 px-6">
+  <div class="mx-auto flex h-14 w-full max-w-7xl items-center gap-2 px-4">
     <a href="/" class="font-medium">
       <BirdIcon class="text-primary h-6 w-6" />
     </a>
     <div class="ml-auto flex items-center gap-2">
+      <button
+        x-data="darkMode"
+        @click="toggle"
+        class="btn-ghost inline-flex h-9 w-9 items-center justify-center"
+        aria-label="Toggle dark mode"
+      >
+        <svg
+          x-show="!isDark"
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <circle cx="12" cy="12" r="4"></circle>
+          <path d="M12 2v2"></path>
+          <path d="M12 20v2"></path>
+          <path d="m4.93 4.93 1.41 1.41"></path>
+          <path d="m17.66 17.66 1.41 1.41"></path>
+          <path d="M2 12h2"></path>
+          <path d="M20 12h2"></path>
+          <path d="m6.34 17.66-1.41 1.41"></path>
+          <path d="m19.07 4.93-1.41 1.41"></path>
+        </svg>
+        <svg
+          x-show="isDark"
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+        </svg>
+      </button>
       <Authenticated>
-        <a class="btn-ghost" href="/admin">Admin</a>
+        {isAdmin && <a class="btn-ghost" href="/admin">Admin</a>}
         <a class="btn-ghost" slot="fallback" href="/register">Register</a>
       </Authenticated>
       <Authenticated>
@@ -20,3 +68,38 @@ import Authenticated from "./Authenticated.astro";
     </div>
   </div>
 </header>
+
+<script>
+  import Alpine from "alpinejs";
+
+  document.addEventListener("alpine:init", () => {
+    Alpine.data("darkMode", () => ({
+      isDark: false,
+
+      init() {
+        // Check localStorage or system preference
+        const stored = localStorage.getItem("themeMode");
+        if (stored) {
+          this.isDark = stored === "dark";
+        } else {
+          this.isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        }
+        this.apply();
+      },
+
+      toggle() {
+        this.isDark = !this.isDark;
+        localStorage.setItem("themeMode", this.isDark ? "dark" : "light");
+        this.apply();
+      },
+
+      apply() {
+        if (this.isDark) {
+          document.documentElement.classList.add("dark");
+        } else {
+          document.documentElement.classList.remove("dark");
+        }
+      }
+    }));
+  });
+</script>
