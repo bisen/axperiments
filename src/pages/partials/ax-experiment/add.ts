@@ -34,8 +34,8 @@ export const POST: APIRoute = async (context) => {
       sort: { by: "order", dir: "asc" }
     });
 
-    // Render the cells list
-    const html = cells
+    // Render the cells list with wrapper
+    const cellsHtml = cells
       .map(
         (cell) => `
           <div class="card" id="cell-${cell.id}">
@@ -81,6 +81,9 @@ export const POST: APIRoute = async (context) => {
         `
       )
       .join("");
+
+    // Wrap in the target container element
+    const html = `<div id="cells-container" class="space-y-4">${cellsHtml}</div>`;
 
     return new Response(html, {
       status: 201,

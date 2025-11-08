@@ -39,10 +39,10 @@ export const POST: APIRoute = async (context) => {
     });
 
     // Render the updated cells list
-    let html = "";
+    let cellsHtml = "";
 
     if (cells.length === 0) {
-      html = `
+      cellsHtml = `
         <div class="card p-8 text-center">
           <p class="text-muted-foreground mb-4">No cells yet. Add your first cell to get started!</p>
           <form action="/partials/ax-experiment/add" method="POST" x-target="#cells-container">
@@ -57,7 +57,7 @@ export const POST: APIRoute = async (context) => {
         </div>
       `;
     } else {
-      html = cells
+      cellsHtml = cells
         .map(
           (cell) => `
             <div class="card" id="cell-${cell.id}">
@@ -104,6 +104,9 @@ export const POST: APIRoute = async (context) => {
         )
         .join("");
     }
+
+    // Wrap in the target container element
+    const html = `<div id="cells-container" class="space-y-4">${cellsHtml}</div>`;
 
     return new Response(html, {
       status: 200,
