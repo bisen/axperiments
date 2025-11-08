@@ -1,0 +1,84 @@
+<div class="form-container">
+    <h2>Create New Experiment</h2>
+
+    <form method="post"
+          action="/partials/experiments"
+          x-target="experiment-list"
+          x-merge="replace"
+          @alpine-ajax:success="
+            document.getElementById('experiment-form-modal').innerHTML = '';
+            alert('Experiment created successfully!');
+          ">
+
+        <div class="form-group">
+            <label for="name">Experiment Name</label>
+            <input type="text"
+                   id="name"
+                   name="name"
+                   placeholder="e.g., Sentiment Analysis"
+                   required
+                   class="form-control">
+        </div>
+
+        <div class="form-group">
+            <label for="description">Description</label>
+            <textarea id="description"
+                      name="description"
+                      rows="2"
+                      placeholder="What does this experiment do?"
+                      class="form-control"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="signature">Ax Signature</label>
+            <textarea id="signature"
+                      name="signature"
+                      rows="3"
+                      placeholder='review:string -> sentiment:class "positive, negative, neutral", confidence:number'
+                      required
+                      class="form-control signature-input"></textarea>
+            <small class="form-hint">
+                Define inputs and outputs. Example: <code>text:string -> category:class "spam, not-spam"</code>
+            </small>
+        </div>
+
+        <div class="form-group">
+            <label for="input">Input (JSON)</label>
+            <textarea id="input"
+                      name="input"
+                      rows="3"
+                      placeholder='{"review": "This product is amazing!"}'
+                      class="form-control code-input"></textarea>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="provider">AI Provider</label>
+                <select id="provider" name="provider" class="form-control">
+                    <option value="openai">OpenAI</option>
+                    <option value="anthropic">Anthropic</option>
+                    <option value="google">Google</option>
+                    <option value="ollama">Ollama</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="model">Model</label>
+                <select id="model" name="model" class="form-control">
+                    <option value="gpt-4o">GPT-4o</option>
+                    <option value="gpt-4o-mini" selected>GPT-4o Mini</option>
+                    <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Create Experiment</button>
+            <button type="button"
+                    @click="document.getElementById('experiment-form-modal').innerHTML = ''"
+                    class="btn">
+                Cancel
+            </button>
+        </div>
+    </form>
+</div>

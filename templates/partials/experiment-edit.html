@@ -1,0 +1,77 @@
+<div class="form-container">
+    <h3>Edit Experiment</h3>
+
+    <form method="post"
+          action="/partials/experiments/{{.ID}}"
+          x-target="experiment-{{.ID}}"
+          id="experiment-{{.ID}}"
+          @alpine-ajax:success="alert('Experiment updated!')">
+
+        <input type="hidden" name="_method" value="PUT">
+
+        <div class="form-group">
+            <label for="name-{{.ID}}">Name</label>
+            <input type="text"
+                   id="name-{{.ID}}"
+                   name="name"
+                   value="{{.Name}}"
+                   required
+                   class="form-control">
+        </div>
+
+        <div class="form-group">
+            <label for="description-{{.ID}}">Description</label>
+            <textarea id="description-{{.ID}}"
+                      name="description"
+                      rows="2"
+                      class="form-control">{{.Description}}</textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="signature-{{.ID}}">Signature</label>
+            <textarea id="signature-{{.ID}}"
+                      name="signature"
+                      rows="3"
+                      required
+                      class="form-control signature-input">{{.Signature}}</textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="input-{{.ID}}">Input (JSON)</label>
+            <textarea id="input-{{.ID}}"
+                      name="input"
+                      rows="3"
+                      class="form-control code-input">{{.Input}}</textarea>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="provider-{{.ID}}">Provider</label>
+                <select id="provider-{{.ID}}" name="provider" class="form-control">
+                    <option value="openai" {{if eq .Provider "openai"}}selected{{end}}>OpenAI</option>
+                    <option value="anthropic" {{if eq .Provider "anthropic"}}selected{{end}}>Anthropic</option>
+                    <option value="google" {{if eq .Provider "google"}}selected{{end}}>Google</option>
+                    <option value="ollama" {{if eq .Provider "ollama"}}selected{{end}}>Ollama</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="model-{{.ID}}">Model</label>
+                <select id="model-{{.ID}}" name="model" class="form-control">
+                    <option value="gpt-4o" {{if eq .Model "gpt-4o"}}selected{{end}}>GPT-4o</option>
+                    <option value="gpt-4o-mini" {{if eq .Model "gpt-4o-mini"}}selected{{end}}>GPT-4o Mini</option>
+                    <option value="gpt-3.5-turbo" {{if eq .Model "gpt-3.5-turbo"}}selected{{end}}>GPT-3.5 Turbo</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <button type="button"
+                    @click="$fetch('/partials/experiments/{{.ID}}', '#experiment-detail-{{.ID}}')"
+                    class="btn">
+                Cancel
+            </button>
+        </div>
+    </form>
+</div>

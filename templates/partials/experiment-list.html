@@ -1,0 +1,52 @@
+{{range .}}
+<article class="experiment-card" id="experiment-{{.ID}}">
+    <header class="experiment-header">
+        <h3>{{.Name}}</h3>
+        <span class="status status-{{.Status}}">{{.Status}}</span>
+    </header>
+
+    <p class="experiment-description">{{.Description}}</p>
+
+    <div class="experiment-signature">
+        <code>{{.Signature}}</code>
+    </div>
+
+    <footer class="experiment-actions">
+        <button @click="$fetch('/partials/experiments/{{.ID}}', '#experiment-detail-{{.ID}}')"
+                class="btn btn-sm btn-primary">
+            Open
+        </button>
+
+        <button @click="$fetch('/partials/experiments/{{.ID}}/edit', '#experiment-{{.ID}}')"
+                class="btn btn-sm">
+            Edit
+        </button>
+
+        <form method="post"
+              action="/partials/experiments/{{.ID}}"
+              x-target="experiment-{{.ID}}"
+              x-merge="morph"
+              @submit.prevent="
+                if (confirm('Delete this experiment?')) {
+                  $el.requestSubmit();
+                  setTimeout(() => { document.getElementById('experiment-{{.ID}}').remove(); }, 100);
+                }
+              "
+              style="display: inline;">
+            <input type="hidden" name="_method" value="DELETE">
+            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+        </form>
+    </footer>
+
+    <!-- Detail view loaded here -->
+    <div id="experiment-detail-{{.ID}}" class="experiment-detail" x-show="$el.innerHTML.trim() !== ''"></div>
+</article>
+{{else}}
+<div class="empty-state">
+    <p>No experiments yet. Create your first one!</p>
+    <button @click="$fetch('/partials/experiments/new', '#experiment-form-modal')"
+            class="btn btn-primary">
+        Create Experiment
+    </button>
+</div>
+{{end}}

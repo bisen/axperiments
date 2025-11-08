@@ -1,0 +1,28 @@
+{{define "content"}}
+<div class="container">
+    <div class="section-header">
+        <h1>All Experiments</h1>
+        <div class="actions">
+            <button @click="$fetch('/partials/experiments/new', '#new-experiment-modal')"
+                    class="btn btn-primary">
+                Create New Experiment
+            </button>
+        </div>
+    </div>
+
+    <div id="experiment-list" class="experiments-grid">
+        {{template "partials/experiment-list.html" .Experiments}}
+    </div>
+
+    <!-- Modal for new experiment -->
+    <div id="new-experiment-modal"
+         x-show="$el.innerHTML.trim() !== ''"
+         @click.self="$el.innerHTML = ''"
+         class="modal-backdrop"
+         x-cloak>
+        <div class="modal-content" @click.stop>
+            <!-- Form loaded here -->
+        </div>
+    </div>
+</div>
+{{end}}

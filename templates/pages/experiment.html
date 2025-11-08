@@ -1,0 +1,23 @@
+{{define "content"}}
+<div class="container">
+    <div class="card">
+        {{template "partials/experiment-view.html" .Experiment}}
+    </div>
+
+    <div class="section-header" style="margin-top: 2rem;">
+        <h2>Actions</h2>
+    </div>
+
+    <div class="card">
+        <div style="display: flex; gap: 1rem;">
+            <a href="/experiments" class="btn">← Back to Experiments</a>
+            <button @click="$fetch('/partials/experiments/{{.Experiment.ID}}/edit', '#edit-form')"
+                    class="btn">
+                Edit Experiment
+            </button>
+        </div>
+
+        <div id="edit-form" style="margin-top: 1.5rem;" x-show="$el.innerHTML.trim() !== ''"></div>
+    </div>
+</div>
+{{end}}

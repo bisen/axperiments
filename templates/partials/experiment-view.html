@@ -1,0 +1,70 @@
+<div class="experiment-viewer">
+    <div class="viewer-header">
+        <h3>{{.Name}}</h3>
+        <button @click="$el.closest('.experiment-detail').innerHTML = ''"
+                class="btn-close">
+            ✕
+        </button>
+    </div>
+
+    <div class="viewer-body">
+        <section class="viewer-section">
+            <h4>Description</h4>
+            <p>{{.Description}}</p>
+        </section>
+
+        <section class="viewer-section">
+            <h4>Signature</h4>
+            <pre class="signature-display"><code>{{.Signature}}</code></pre>
+        </section>
+
+        <section class="viewer-section">
+            <h4>Configuration</h4>
+            <dl class="config-list">
+                <dt>Provider:</dt>
+                <dd>{{.Provider}}</dd>
+                <dt>Model:</dt>
+                <dd>{{.Model}}</dd>
+                <dt>Status:</dt>
+                <dd><span class="status status-{{.Status}}">{{.Status}}</span></dd>
+            </dl>
+        </section>
+
+        <section class="viewer-section">
+            <h4>Input</h4>
+            <pre class="code-display"><code>{{.Input}}</code></pre>
+        </section>
+
+        {{if .Output}}
+        <section class="viewer-section">
+            <h4>Output</h4>
+            <pre class="code-display output"><code>{{.Output}}</code></pre>
+        </section>
+        {{end}}
+
+        {{if .Error}}
+        <section class="viewer-section">
+            <h4>Error</h4>
+            <pre class="error-display"><code>{{.Error}}</code></pre>
+        </section>
+        {{end}}
+
+        <section class="viewer-actions">
+            <form method="post"
+                  action="/partials/experiments/{{.ID}}/execute"
+                  x-target="experiment-detail-{{.ID}}"
+                  @alpine-ajax:before="$el.querySelector('button[type=submit]').textContent = 'Executing...'"
+                  @alpine-ajax:success="$el.querySelector('button[type=submit]').textContent = 'Execute'"
+                  style="display: inline;">
+                <button type="submit" class="btn btn-primary">
+                    {{if eq .Status "running"}}Executing...{{else}}Execute{{end}}
+                </button>
+            </form>
+
+            <button @click="$fetch('/partials/experiments/{{.ID}}/edit', '#experiment-{{.ID}}')"
+                    class="btn">
+                Edit
+            </button>
+        </section>
+    </div>
+</div>
