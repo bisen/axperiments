@@ -29,7 +29,7 @@ const { data: cells } = await api.data.readMany("ax_cells", {
     <!-- Toolbar -->
     <div class="mb-6 flex items-center justify-between">
       <div class="flex gap-2">
-        <form action="/partials/ax-experiment/add" method="POST" x-target="#cells-container">
+        <form action="/partials/ax-experiment/add" method="POST" x-target="cells-container">
           <button type="submit" class="btn">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -50,7 +50,7 @@ const { data: cells } = await api.data.readMany("ax_cells", {
           </button>
         </form>
 
-        <a href="/partials/ax-experiment/list" x-target="#cells-container" class="btn-ghost">
+        <a href="/partials/ax-experiment/list" x-target="cells-container" class="btn-ghost">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="20"
@@ -71,13 +71,13 @@ const { data: cells } = await api.data.readMany("ax_cells", {
     </div>
 
     <!-- Cells Container -->
-    <div id="cells-container" class="space-y-4">
+    <div id="cells-container" class="space-y-4" @ajax:before.delete="confirm('Delete this cell?') || $event.preventDefault()">
       <!-- Initial cells from server -->
       {
         cells.length === 0 ? (
           <div class="card p-8 text-center">
             <p class="text-muted-foreground mb-4">No cells yet. Add your first cell to get started!</p>
-            <form action="/partials/ax-experiment/add" method="POST" x-target="#cells-container">
+            <form action="/partials/ax-experiment/add" method="POST" x-target="cells-container">
               <button type="submit" class="btn">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -106,15 +106,13 @@ const { data: cells } = await api.data.readMany("ax_cells", {
                   <span class="badge">{cell.cell_type}</span>
                   <span>Cell {cell.order}</span>
                 </div>
-                <div class="flex gap-2" x-data="{cellId: '${cell.id}'}">
+                <div class="flex gap-2">
                   <form
+                    id={`execute-form-${cell.id}`}
                     action={`/partials/ax-experiment/${cell.id}/execute`}
                     method="POST"
-                    x-target={`#cell-${cell.id}`}
-                    x-data
-                    @submit.prevent="$el.querySelector('input[name=content]').value = document.querySelector('#textarea-${cell.id}').value; $el.submit()"
+                    x-target={`cell-${cell.id}`}
                   >
-                    <input type="hidden" name="content" />
                     <button type="submit" class="btn-ghost btn-sm">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -134,10 +132,8 @@ const { data: cells } = await api.data.readMany("ax_cells", {
                   </form>
                   <form
                     action={`/partials/ax-experiment/${cell.id}/delete`}
-                    method="POST"
-                    x-target="#cells-container"
-                    x-data
-                    @submit.prevent="if (confirm('Delete this cell?')) $el.submit()"
+                    method="DELETE"
+                    x-target="cells-container"
                   >
                     <button type="submit" class="btn-ghost btn-sm text-destructive">
                       <svg
@@ -162,7 +158,8 @@ const { data: cells } = await api.data.readMany("ax_cells", {
               </div>
               <div class="p-4">
                 <textarea
-                  id={`textarea-${cell.id}`}
+                  name="content"
+                  form={`execute-form-${cell.id}`}
                   class="input mb-2 w-full font-mono text-sm"
                   rows="5"
                   placeholder="Enter your signature or code here..."

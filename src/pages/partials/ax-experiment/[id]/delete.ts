@@ -1,7 +1,7 @@
 import type { APIRoute } from "astro";
 import { getApi } from "@/bknd.ts";
 
-export const POST: APIRoute = async (context) => {
+export const DELETE: APIRoute = async (context) => {
   const api = await getApi(context);
   const user = api.getUser();
 
@@ -45,7 +45,7 @@ export const POST: APIRoute = async (context) => {
       cellsHtml = `
         <div class="card p-8 text-center">
           <p class="text-muted-foreground mb-4">No cells yet. Add your first cell to get started!</p>
-          <form action="/partials/ax-experiment/add" method="POST" x-target="#cells-container">
+          <form action="/partials/ax-experiment/add" method="POST" x-target="cells-container">
             <button type="submit" class="btn">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-block">
                 <path d="M5 12h14" />
@@ -67,8 +67,7 @@ export const POST: APIRoute = async (context) => {
                   <span>Cell ${cell.order}</span>
                 </div>
                 <div class="flex gap-2">
-                  <form action="/partials/ax-experiment/${cell.id}/execute" method="POST" x-target="#cell-${cell.id}" x-data @submit.prevent="$el.querySelector('input[name=content]').value = document.querySelector('#textarea-${cell.id}').value; $el.submit()">
-                    <input type="hidden" name="content" />
+                  <form id="execute-form-${cell.id}" action="/partials/ax-experiment/${cell.id}/execute" method="POST" x-target="cell-${cell.id}">
                     <button type="submit" class="btn-ghost btn-sm">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polygon points="6 3 20 12 6 21 6 3" />
@@ -76,7 +75,7 @@ export const POST: APIRoute = async (context) => {
                       Run
                     </button>
                   </form>
-                  <form action="/partials/ax-experiment/${cell.id}/delete" method="POST" x-target="#cells-container" x-data @submit.prevent="if (confirm('Delete this cell?')) $el.submit()">
+                  <form action="/partials/ax-experiment/${cell.id}/delete" method="DELETE" x-target="cells-container">
                     <button type="submit" class="btn-ghost btn-sm text-destructive">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M3 6h18" />
@@ -89,7 +88,7 @@ export const POST: APIRoute = async (context) => {
                 </div>
               </div>
               <div class="p-4">
-                <textarea id="textarea-${cell.id}" class="input mb-2 w-full font-mono text-sm" rows="5" placeholder="Enter your signature or code here...">${cell.content || ""}</textarea>
+                <textarea name="content" form="execute-form-${cell.id}" class="input mb-2 w-full font-mono text-sm" rows="5" placeholder="Enter your signature or code here...">${cell.content || ""}</textarea>
                 ${
                   cell.output
                     ? `<div class="bg-muted mt-4 rounded-md p-4">
