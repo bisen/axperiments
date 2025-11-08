@@ -1,34 +1,75 @@
 ---
-import { getApi } from "@/bknd.ts";
 import Layout from "@/layouts/Layout.astro";
+import { getApi } from "@/bknd.ts";
 
 const api = await getApi(Astro, { verify: true, mode: "dynamic" });
-
-const { data } = await api.data.readMany("posts");
 const user = api.getUser();
+
+if (!user) {
+  return Astro.redirect("/login");
+}
 ---
 
-<Layout title="Freedom Stack v2">
-  <section class="mx-auto flex max-w-md flex-col gap-4 p-6">
-    <h1 class="heading-1">Freedom Stack v2</h1>
-    {user?.email ? <p>Logged in as {user.email}</p> : <p>Not logged in</p>}
-    <div class="bg-secondary rounded-lg p-3 font-mono select-all">
-      npx degit https://github.com/cameronapak/freedom-stack-v2 my-project
+<Layout title="Welcome">
+  <div class="container mx-auto max-w-4xl px-4 py-16">
+    <div class="text-center">
+      <h1 class="heading-1 mb-4 text-5xl">Welcome to Axperiments</h1>
+      <p class="text-muted-foreground mb-8 text-lg">
+        A clean Astro + Bknd starter application. You're logged in as <strong>{user.email}</strong>
+      </p>
+
+      <div class="card mx-auto max-w-2xl">
+        <div class="p-8">
+          <h2 class="heading-2 mb-4">Getting Started</h2>
+          <div class="text-muted-foreground space-y-3 text-left">
+            <p>
+              <strong>1. Define your schema</strong> - Edit <code class="bg-muted rounded px-2 py-1">bknd.config.ts</code
+              > to add your database entities
+            </p>
+            <p>
+              <strong>2. Create services</strong> - Add business logic in <code class="bg-muted rounded px-2 py-1"
+                >src/lib/services/</code
+              >
+            </p>
+            <p>
+              <strong>3. Build pages</strong> - Create routes in <code class="bg-muted rounded px-2 py-1"
+                >src/pages/</code
+              >
+            </p>
+            <p>
+              <strong>4. Add API endpoints</strong> - Return HTML partials from <code
+                class="bg-muted rounded px-2 py-1">src/pages/api/</code
+              >
+            </p>
+          </div>
+
+          <div class="mt-8 flex justify-center gap-4">
+            <a href="/BKND_CRUD_GUIDE.md" class="btn">View Guide</a>
+            <a href="https://docs.bknd.io" target="_blank" class="btn-ghost">Bknd Docs</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-8 grid gap-4 md:grid-cols-3">
+        <div class="card p-6 text-left">
+          <h3 class="heading-3 mb-2">Auth Built-in</h3>
+          <p class="text-muted-foreground text-sm">
+            User authentication, JWT tokens, and role-based permissions are already configured.
+          </p>
+        </div>
+        <div class="card p-6 text-left">
+          <h3 class="heading-3 mb-2">Alpine AJAX</h3>
+          <p class="text-muted-foreground text-sm">
+            Server-rendered HTML with smooth client-side updates. No full page reloads needed.
+          </p>
+        </div>
+        <div class="card p-6 text-left">
+          <h3 class="heading-3 mb-2">Type-safe</h3>
+          <p class="text-muted-foreground text-sm">
+            Auto-generated TypeScript types keep your code safe and your editor happy.
+          </p>
+        </div>
+      </div>
     </div>
-    <h2 class="heading-2">Posts</h2>
-    <div class="grid grid-cols-1 gap-4">
-      {
-        data.map((post) => (
-          <a href={`/posts/${encodeURIComponent(post.slug)}`} class="card block transition-shadow hover:shadow-lg">
-            <header>
-              <h3 class="text-lg font-semibold">{post.title}</h3>
-            </header>
-            <section class="text-muted-foreground line-clamp-3">
-              {post.content?.slice(0, 256) ?? "No preview available…"}
-            </section>
-          </a>
-        ))
-      }
-    </div>
-  </section>
+  </div>
 </Layout>

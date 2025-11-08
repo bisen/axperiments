@@ -1,6 +1,6 @@
 # CLAUDE.md - Repository Exploration
 
-**Last Updated:** 2025-11-01
+**Last Updated:** 2025-01-11
 **Explored By:** Claude (Sonnet 4.5)
 
 ---
@@ -353,6 +353,44 @@ Last 5 commits:
 - **Component Library:** Tailwind + Basecoat (no JSX/React)
 - **Auto-generated Types:** bknd plugin generates database types in `src/bknd-types.d.ts`
 - **AI-Friendly:** Designed for AI code editor assistance
+
+### Frontend Development Approach
+
+When working on the frontend, follow these guidelines:
+
+1. **Basecoat UI First**
+   - Use Basecoat CSS components (`btn`, `card`, `input`, `badge`, etc.)
+   - Leverage Basecoat's pre-built styles instead of custom components
+   - Reference [Basecoat documentation](https://basecoatui.com) for available components
+
+2. **No Color Customization**
+   - Do NOT modify colors or theme variables
+   - Work with the default Basecoat/Tailwind color palette
+   - Focus on using semantic color classes (`text-primary`, `bg-muted`, etc.)
+
+3. **Focus on Layout & Components**
+   - Prioritize layout improvements (spacing, hierarchy, grid systems)
+   - Improve component structure and organization
+   - Enhance usability through better UX patterns
+   - Add icons for visual clarity (inline SVG from Lucide)
+
+4. **Alpine.js Integration**
+   - Use Alpine.js for client-side interactivity
+   - Keep logic in `x-data` blocks instead of separate `<script>` tags
+   - Use Alpine directives (`@click`, `x-show`, `x-model`, etc.)
+   - Avoid inline `onclick` handlers - use Alpine event handling
+
+5. **Component Patterns**
+   - Separate content into logical cards/sections
+   - Use consistent spacing (`space-y-*`, `gap-*`)
+   - Add loading states for async operations
+   - Replace native alerts/confirms with custom modals
+
+6. **Accessibility & UX**
+   - Provide visual feedback (loading states, disabled states)
+   - Use proper semantic HTML
+   - Include helpful placeholder text
+   - Add icons to improve scannability
 
 ---
 

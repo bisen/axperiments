@@ -8,58 +8,21 @@ import { createClient } from "@libsql/client";
 
 const schema = em(
   {
-    users: systemEntity("users", {}),
-    posts: entity("posts", {
-      // "id" is automatically added
-      title: text().required(),
-      slug: text().required(),
-      content: text(),
-      views: number()
-    }),
-    comments: entity("comments", {
-      content: text()
-    }),
+    users: systemEntity("users", {})
 
-    // Recipe management entities
-    recipes: entity("recipes", {
-      name: text().required(),
-      description: text(),
-      yields: json(), // Array of { amount: number, unit: string }
-      notes: json(), // Array of strings
-      source: json(), // { author?, url?, book?: { title, authors, isbn } }
-      public: boolean()
-    }),
-    ingredients: entity("ingredients", {
-      name: text().required()
-    }),
-    recipe_ingredients: entity("recipe_ingredients", {
-      amounts: json().required(), // Array of { amount: number|string, unit: string }
-      processing: json(), // Array of strings
-      notes: json(), // Array of strings
-      order: number().required()
-    }),
-    steps: entity("steps", {
-      order: number().required(),
-      instruction: text().required(),
-      notes: json() // Array of strings
-    })
-
-    // relations and indices are defined separately.
-    // the first argument are the helper functions, the second the entities.
+    // Add your entities here
+    // Example:
+    // posts: entity("posts", {
+    //   title: text().required(),
+    //   content: text(),
+    //   published: boolean()
+    // })
   },
-  ({ relation, index }, { posts, comments, recipes, ingredients, recipe_ingredients, steps, users }) => {
-    relation(recipes).manyToOne(users);
-    relation(comments).manyToOne(posts);
-    // relation as well as index can be chained!
-    index(posts).on(["title"]).on(["slug"], true);
-
-    // Recipe relations
-    relation(recipe_ingredients).manyToOne(recipes);
-    relation(recipe_ingredients).manyToOne(ingredients);
-    relation(steps).manyToOne(recipes);
-
-    // Recipe indices
-    index(ingredients).on(["name"], true); // unique index
+  ({ relation, index }, { users }) => {
+    // Define relations and indices here
+    // Example:
+    // relation(posts).manyToOne(users);
+    // index(posts).on(["title"]);
   }
 );
 
@@ -85,7 +48,7 @@ export default {
       allow_register: true,
       enabled: true,
       jwt: {
-        issuer: "bknd-astro-example",
+        issuer: "axperiments",
         secret: secureRandomString(64)
       },
       guard: {
@@ -139,16 +102,6 @@ export default {
         password: "password",
         role: "default"
       });
-
-      // create some entries
-      await ctx.em.mutator("posts").insertMany([
-        {
-          title: "What is Freedom Stack v2?",
-          slug: "freedom-stack-v2",
-          content:
-            "Freedom Stack v2 is a modern web development stack designed to be elementary, financially accessible, and entirely self-hostable. It's built for developers who want a simple yet powerful foundation for building web applications with AI code editor assistance."
-        }
-      ]);
     },
     plugins: [
       // Writes down the schema types on boot and config change,
