@@ -32,7 +32,10 @@ func Home(w http.ResponseWriter, r *http.Request) {
 		Experiments: experiments,
 	}
 
-	tmpl.ExecuteTemplate(w, "pages/home.html", data)
+	err = tmpl.ExecuteTemplate(w, "pages/home.html", data)
+	if err != nil {
+		http.Error(w, "Template error: "+err.Error(), http.StatusInternalServerError)
+	}
 }
 
 // ListExperiments renders the full experiments list page
