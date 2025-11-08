@@ -1,0 +1,80 @@
+---
+interface Props {
+  cell: any;
+}
+
+const { cell } = Astro.props;
+---
+
+<div class="card" id={`cell-${cell.id}`}>
+  <div class="border-border bg-muted flex items-center justify-between border-b px-4 py-2">
+    <div class="text-muted-foreground flex items-center gap-2 text-sm">
+      <span class="badge">{cell.cell_type}</span>
+      <span>Cell {cell.order}</span>
+    </div>
+    <div class="flex gap-2">
+      <form
+        id={`execute-form-${cell.id}`}
+        action={`/partials/ax-experiment/${cell.id}/execute`}
+        method="POST"
+        x-target={`cell-${cell.id}`}
+      >
+        <button type="submit" class="btn-ghost btn-sm">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <polygon points="6 3 20 12 6 21 6 3" />
+          </svg>
+          Run
+        </button>
+      </form>
+      <form
+        action={`/partials/ax-experiment/${cell.id}/delete`}
+        method="DELETE"
+        x-target="cells-container"
+      >
+        <button type="submit" class="btn-ghost btn-sm text-destructive">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M3 6h18" />
+            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+          </svg>
+          Delete
+        </button>
+      </form>
+    </div>
+  </div>
+  <div class="p-4">
+    <textarea
+      name="content"
+      form={`execute-form-${cell.id}`}
+      class="input mb-2 w-full font-mono text-sm"
+      rows="5"
+      placeholder="Enter your signature or code here..."
+    >{cell.content || ""}</textarea>
+    {cell.output && (
+      <div class="bg-muted mt-4 rounded-md p-4">
+        <p class="text-muted-foreground mb-2 text-xs font-semibold uppercase">Output</p>
+        <pre class="text-foreground overflow-x-auto text-sm">{cell.output}</pre>
+      </div>
+    )}
+  </div>
+</div>

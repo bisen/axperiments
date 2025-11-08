@@ -1,0 +1,46 @@
+---
+import { getApi } from "@/bknd.ts";
+import CellsList from "@/components/CellsList.astro";
+
+const api = await getApi(Astro);
+const user = api.getUser();
+
+if (!user) {
+  return Astro.redirect("/login");
+}
+
+// Handle POST request
+if (Astro.request.method === "POST") {
+  try {
+    // Get the highest order number for the user's cells
+    const { data: existingCells } = await api.data.readMany("ax_cells", {
+      where: { users: { id: user.id } },
+      sort: { by: "order", dir: "desc" },
+      limit: 1
+    });
+
+    const nextOrder = existingCells.length > 0 ? (existingCells[0].order || 0) + 1 : 0;
+
+    // Create a new cell
+    await api.data.createOne("ax_cells", {
+      content: "",
+      output: "",
+      order: nextOrder,
+      cell_type: "signature",
+      users: { $set: { id: user.id } }
+    });
+  } catch (error) {
+    Astro.response.status = 500;
+  }
+}
+
+// Fetch cells for rendering
+const { data: cells } = await api.data.readMany("ax_cells", {
+  where: { users: { id: user.id } },
+  sort: { by: "order", dir: "asc" }
+});
+
+Astro.response.headers.set("Content-Type", "text/html");
+---
+
+<CellsList cells={cells} />

@@ -1,0 +1,74 @@
+---
+import { getApi } from "@/bknd.ts";
+import Cell from "@/components/Cell.astro";
+
+const api = await getApi(Astro);
+const user = api.getUser();
+
+if (!user) {
+  return new Response("Unauthorized", { status: 401 });
+}
+
+const { id } = Astro.params;
+
+if (!id) {
+  return new Response("Cell ID required", { status: 400 });
+}
+
+let cell;
+
+// Handle POST request
+if (Astro.request.method === "POST") {
+  try {
+    const formData = await Astro.request.formData();
+    const content = formData.get("content") as string;
+
+    // Verify ownership
+    const { data: existingCell } = await api.data.readOne("ax_cells", id, {
+      with: "users"
+    });
+
+    if (!existingCell) {
+      return new Response("Cell not found", { status: 404 });
+    }
+
+    if (existingCell.users?.id !== user.id) {
+      return new Response("Unauthorized", { status: 403 });
+    }
+
+    // Simulate execution
+    const output = `Executed at ${new Date().toISOString()}\n\nInput:\n${content}\n\nThis is a simulated output. In production, this would execute the signature or call an LLM.`;
+
+    // Update cell with new content and output
+    const { data: updatedCell } = await api.data.updateOne("ax_cells", id, {
+      content,
+      output
+    });
+
+    cell = updatedCell;
+  } catch (error) {
+    Astro.response.status = 500;
+    return new Response(
+      `<div class="alert">
+        <h2>Error</h2>
+        <section>${error instanceof Error ? error.message : "Failed to execute cell"}</section>
+      </div>`,
+      { status: 500, headers: { "Content-Type": "text/html" } }
+    );
+  }
+} else {
+  // For GET requests, just fetch the cell
+  const { data } = await api.data.readOne("ax_cells", id, {
+    with: "users"
+  });
+  cell = data;
+}
+
+if (!cell) {
+  return new Response("Cell not found", { status: 404 });
+}
+
+Astro.response.headers.set("Content-Type", "text/html");
+---
+
+<Cell cell={cell} />
