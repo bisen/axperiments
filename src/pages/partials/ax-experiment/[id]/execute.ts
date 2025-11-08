@@ -16,8 +16,8 @@ export const POST: APIRoute = async (context) => {
   }
 
   try {
-    const body = await context.request.json();
-    const { content } = body;
+    const formData = await context.request.formData();
+    const content = formData.get("content") as string;
 
     // Verify ownership
     const { data: cell } = await api.data.readOne("ax_cells", id, {
@@ -43,55 +43,36 @@ export const POST: APIRoute = async (context) => {
 
     // Return HTML for the updated cell
     const html = `
-      <div class="card" data-cell-id="${updatedCell.id}">
+      <div class="card" id="cell-${updatedCell.id}">
         <div class="border-border bg-muted flex items-center justify-between border-b px-4 py-2">
           <div class="text-muted-foreground flex items-center gap-2 text-sm">
             <span class="badge">${updatedCell.cell_type}</span>
             <span>Cell ${updatedCell.order}</span>
           </div>
           <div class="flex gap-2">
-            <button @click="executeCell(${updatedCell.id})" class="btn-ghost btn-sm">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <polygon points="6 3 20 12 6 21 6 3" />
-              </svg>
-              Run
-            </button>
-            <button @click="deleteCell(${updatedCell.id})" class="btn-ghost btn-sm text-destructive">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path d="M3 6h18" />
-                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-              </svg>
-              Delete
-            </button>
+            <form action="/partials/ax-experiment/${updatedCell.id}/execute" method="POST" x-target="#cell-${updatedCell.id}" x-data @submit.prevent="$el.querySelector('input[name=content]').value = document.querySelector('#textarea-${updatedCell.id}').value; $el.submit()">
+              <input type="hidden" name="content" />
+              <button type="submit" class="btn-ghost btn-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="6 3 20 12 6 21 6 3" />
+                </svg>
+                Run
+              </button>
+            </form>
+            <form action="/partials/ax-experiment/${updatedCell.id}/delete" method="POST" x-target="#cells-container" x-data @submit.prevent="if (confirm('Delete this cell?')) $el.submit()">
+              <button type="submit" class="btn-ghost btn-sm text-destructive">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 6h18" />
+                  <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                  <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                </svg>
+                Delete
+              </button>
+            </form>
           </div>
         </div>
         <div class="p-4">
-          <textarea
-            class="input mb-2 w-full font-mono text-sm"
-            rows="5"
-            placeholder="Enter your signature or code here..."
-          >${updatedCell.content}</textarea>
+          <textarea id="textarea-${updatedCell.id}" class="input mb-2 w-full font-mono text-sm" rows="5" placeholder="Enter your signature or code here...">${updatedCell.content || ""}</textarea>
           <div class="bg-muted mt-4 rounded-md p-4">
             <p class="text-muted-foreground mb-2 text-xs font-semibold uppercase">Output</p>
             <pre class="text-foreground overflow-x-auto text-sm">${updatedCell.output}</pre>
