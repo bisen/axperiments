@@ -1,0 +1,21 @@
+---
+import { getApi } from "@/bknd.ts";
+import CellsList from "@/components/CellsList.astro";
+
+const api = await getApi(Astro);
+const user = api.getUser();
+
+if (!user) {
+  return Astro.redirect("/login");
+}
+
+// Fetch all cells for the user
+const { data: cells } = await api.data.readMany("ax_cells", {
+  where: { users: { id: user.id } },
+  sort: { by: "order", dir: "asc" }
+});
+
+Astro.response.headers.set("Content-Type", "text/html");
+---
+
+<CellsList cells={cells} />

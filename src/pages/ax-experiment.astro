@@ -1,0 +1,79 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import { getApi } from "@/bknd.ts";
+import CellsList from "@/components/CellsList.astro";
+
+const api = await getApi(Astro, { verify: true, mode: "dynamic" });
+const user = api.getUser();
+
+if (!user) {
+  return Astro.redirect("/login");
+}
+
+// Fetch existing cells for the user
+const { data: cells } = await api.data.readMany("ax_cells", {
+  where: { users: { id: user.id } },
+  sort: { by: "order", dir: "asc" }
+});
+---
+
+<Layout title="AX Experiment Playground">
+  <div class="container mx-auto max-w-6xl px-4 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="heading-1 mb-2 text-4xl">AX Experiment Playground</h1>
+      <p class="text-muted-foreground">
+        Interactive notebook for experimenting with LLM signatures and prompts
+      </p>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="mb-6 flex items-center justify-between">
+      <div class="flex gap-2">
+        <form action="/partials/ax-experiment/add" method="POST" x-target="cells-container">
+          <button type="submit" class="btn">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="inline-block"
+            >
+              <path d="M5 12h14"></path>
+              <path d="M12 5v14"></path>
+            </svg>
+            Add Cell
+          </button>
+        </form>
+
+        <a href="/partials/ax-experiment/list" x-target="cells-container" class="btn-ghost">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="inline-block"
+          >
+            <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"></path>
+          </svg>
+          Refresh
+        </a>
+      </div>
+    </div>
+
+    <!-- Cells Container -->
+    <div @ajax:before.delete="confirm('Delete this cell?') || $event.preventDefault()">
+      <CellsList cells={cells} />
+    </div>
+  </div>
+</Layout>

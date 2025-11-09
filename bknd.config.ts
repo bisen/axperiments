@@ -8,21 +8,22 @@ import { createClient } from "@libsql/client";
 
 const schema = em(
   {
-    users: systemEntity("users", {})
+    users: systemEntity("users", {}),
 
-    // Add your entities here
-    // Example:
-    // posts: entity("posts", {
-    //   title: text().required(),
-    //   content: text(),
-    //   published: boolean()
-    // })
+    // AX Experiment Cells - similar to Jupyter notebook cells
+    ax_cells: entity("ax_cells", {
+      content: text().required(), // The signature/code content
+      output: text(), // Execution output/result
+      order: number().required(), // Display order
+      cell_type: text().required() // 'signature', 'code', etc.
+    })
   },
-  ({ relation, index }, { users }) => {
-    // Define relations and indices here
-    // Example:
-    // relation(posts).manyToOne(users);
-    // index(posts).on(["title"]);
+  ({ relation, index }, { users, ax_cells }) => {
+    // Define relations
+    relation(ax_cells).manyToOne(users);
+
+    // Define indices
+    index(ax_cells).on(["order"]);
   }
 );
 

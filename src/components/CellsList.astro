@@ -1,0 +1,41 @@
+---
+import Cell from "@/components/Cell.astro";
+
+interface Props {
+  cells: any[];
+}
+
+const { cells } = Astro.props;
+---
+
+<div id="cells-container" class="space-y-4">
+  {
+    cells.length === 0 ? (
+      <div class="card p-8 text-center">
+        <p class="text-muted-foreground mb-4">No cells yet. Add your first cell to get started!</p>
+        <form action="/partials/ax-experiment/add" method="POST" x-target="cells-container">
+          <button type="submit" class="btn">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="inline-block"
+            >
+              <path d="M5 12h14" />
+              <path d="M12 5v14" />
+            </svg>
+            Add First Cell
+          </button>
+        </form>
+      </div>
+    ) : (
+      cells.map((cell) => <Cell cell={cell} />)
+    )
+  }
+</div>

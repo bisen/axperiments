@@ -13,6 +13,11 @@ const isAdmin = user?.role === "admin";
     <a href="/" class="font-medium">
       <BirdIcon class="text-primary h-6 w-6" />
     </a>
+    <Authenticated>
+      <a href="/ax-experiment" class="btn-ghost">
+        AX Experiment
+      </a>
+    </Authenticated>
     <div class="ml-auto flex items-center gap-2">
       <button
         x-data="darkMode"
